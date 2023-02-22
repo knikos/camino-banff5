@@ -11,6 +11,7 @@ import (
 	database "github.com/ava-labs/avalanchego/database"
 	ids "github.com/ava-labs/avalanchego/ids"
 	choices "github.com/ava-labs/avalanchego/snow/choices"
+	validators "github.com/ava-labs/avalanchego/snow/validators"
 	bls "github.com/ava-labs/avalanchego/utils/crypto/bls"
 	set "github.com/ava-labs/avalanchego/utils/set"
 	avax "github.com/ava-labs/avalanchego/vms/components/avax"
@@ -840,14 +841,16 @@ func (mr *MockStateMockRecorder) UTXOIDs(arg0, arg1, arg2 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UTXOIDs", reflect.TypeOf((*MockState)(nil).UTXOIDs), arg0, arg1, arg2)
 }
 
-// UpdateDeposit mocks base method.
-func (m *MockState) UpdateDeposit(arg0 ids.ID, arg1 *deposit.Deposit) {
+// ValidatorSet mocks base method.
+func (m *MockState) ValidatorSet(arg0 ids.ID, arg1 validators.Set) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UpdateDeposit", arg0, arg1)
+	ret := m.ctrl.Call(m, "ValidatorSet", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// UpdateDeposit indicates an expected call of UpdateDeposit.
-func (mr *MockStateMockRecorder) UpdateDeposit(arg0, arg1 interface{}) *gomock.Call {
+// ValidatorSet indicates an expected call of ValidatorSet.
+func (mr *MockStateMockRecorder) ValidatorSet(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeposit", reflect.TypeOf((*MockState)(nil).UpdateDeposit), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidatorSet", reflect.TypeOf((*MockState)(nil).ValidatorSet), arg0, arg1)
 }
