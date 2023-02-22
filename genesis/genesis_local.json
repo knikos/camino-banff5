@@ -60,16 +60,6 @@
       "rewardAddress": "X-local18jma8ppw3nhx5r4ap8clazz0dps7rv5u00z96u",
       "delegationFee": 250000
     },
-    {
-      "nodeID": "NodeID-5ZUdznHckQcqucAnNf3vzXnPF97tfRtfn",
-      "rewardAddress": "X-local18jma8ppw3nhx5r4ap8clazz0dps7rv5u00z96u",
-      "delegationFee": 125000
-    },
-    {
-      "nodeID": "NodeID-EoYFkbokZEukfWrUovo74YkTFnAMaqTG7",
-      "rewardAddress": "X-local18jma8ppw3nhx5r4ap8clazz0dps7rv5u00z96u",
-      "delegationFee": 62500
-    }
   ],
   "camino": {
     "verifyNodeSignature": false,
