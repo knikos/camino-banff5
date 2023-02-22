@@ -35,9 +35,9 @@ import (
 	"github.com/ava-labs/avalanchego/utils/logging"
 	"github.com/ava-labs/avalanchego/utils/wrappers"
 	"github.com/ava-labs/avalanchego/version"
+	"github.com/ava-labs/avalanchego/vms/platformvm/teleporter/gteleporter"
 	"github.com/ava-labs/avalanchego/vms/rpcchainvm/ghttp"
 	"github.com/ava-labs/avalanchego/vms/rpcchainvm/grpcutils"
-	"github.com/ava-labs/avalanchego/vms/rpcchainvm/gsubnetlookup"
 	"github.com/ava-labs/avalanchego/vms/rpcchainvm/messenger"
 
 	aliasreaderpb "github.com/ava-labs/avalanchego/proto/pb/aliasreader"
@@ -47,7 +47,7 @@ import (
 	messengerpb "github.com/ava-labs/avalanchego/proto/pb/messenger"
 	rpcdbpb "github.com/ava-labs/avalanchego/proto/pb/rpcdb"
 	sharedmemorypb "github.com/ava-labs/avalanchego/proto/pb/sharedmemory"
-	subnetlookuppb "github.com/ava-labs/avalanchego/proto/pb/subnetlookup"
+	teleporterpb "github.com/ava-labs/avalanchego/proto/pb/teleporter"
 	validatorstatepb "github.com/ava-labs/avalanchego/proto/pb/validatorstate"
 	vmpb "github.com/ava-labs/avalanchego/proto/pb/vm"
 )
@@ -186,9 +186,9 @@ func (vm *VMServer) Initialize(ctx context.Context, req *vmpb.InitializeRequest)
 	keystoreClient := gkeystore.NewClient(keystorepb.NewKeystoreClient(clientConn))
 	sharedMemoryClient := gsharedmemory.NewClient(sharedmemorypb.NewSharedMemoryClient(clientConn))
 	bcLookupClient := galiasreader.NewClient(aliasreaderpb.NewAliasReaderClient(clientConn))
-	snLookupClient := gsubnetlookup.NewClient(subnetlookuppb.NewSubnetLookupClient(clientConn))
 	appSenderClient := appsender.NewClient(appsenderpb.NewAppSenderClient(clientConn))
 	validatorStateClient := gvalidators.NewClient(validatorstatepb.NewValidatorStateClient(clientConn))
+	teleporterSignerClient := gteleporter.NewClient(teleporterpb.NewSignerClient(clientConn))
 
 	toEngine := make(chan common.Message, 1)
 	vm.closed = make(chan struct{})
@@ -221,8 +221,10 @@ func (vm *VMServer) Initialize(ctx context.Context, req *vmpb.InitializeRequest)
 		Keystore:     keystoreClient,
 		SharedMemory: sharedMemoryClient,
 		BCLookup:     bcLookupClient,
-		SNLookup:     snLookupClient,
 		Metrics:      metrics.NewOptionalGatherer(),
+
+		// Signs teleporter messages
+		TeleporterSigner: teleporterSignerClient,
 
 		ValidatorState: validatorStateClient,
 		// TODO: support remaining snowman++ fields
@@ -319,10 +321,7 @@ func (vm *VMServer) CreateHandlers(ctx context.Context, _ *emptypb.Empty) (*vmpb
 
 		// Start the gRPC server which serves the HTTP service
 		go grpcutils.Serve(serverListener, func(opts []grpc.ServerOption) *grpc.Server {
-			if len(opts) == 0 {
-				opts = append(opts, grpcutils.DefaultServerOptions...)
-			}
-			server := grpc.NewServer(opts...)
+			server := grpcutils.NewDefaultServer(opts)
 			vm.serverCloser.Add(server)
 			httppb.RegisterHTTPServer(server, ghttp.NewServer(handler.Handler))
 			return server
@@ -354,10 +353,7 @@ func (vm *VMServer) CreateStaticHandlers(ctx context.Context, _ *emptypb.Empty) 
 
 		// Start the gRPC server which serves the HTTP service
 		go grpcutils.Serve(serverListener, func(opts []grpc.ServerOption) *grpc.Server {
-			if len(opts) == 0 {
-				opts = append(opts, grpcutils.DefaultServerOptions...)
-			}
-			server := grpc.NewServer(opts...)
+			server := grpcutils.NewDefaultServer(opts)
 			vm.serverCloser.Add(server)
 			httppb.RegisterHTTPServer(server, ghttp.NewServer(handler.Handler))
 			return server

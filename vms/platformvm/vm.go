@@ -522,7 +522,10 @@ func (vm *VM) GetValidatorSet(ctx context.Context, height uint64, subnetID ids.I
 
 	currentSubnetValidators, ok := vm.Validators.Get(subnetID)
 	if !ok {
-		return nil, errMissingValidatorSet
+		currentSubnetValidators = validators.NewSet()
+		if err := vm.state.ValidatorSet(subnetID, currentSubnetValidators); err != nil {
+			return nil, err
+		}
 	}
 	currentPrimaryNetworkValidators, ok := vm.Validators.Get(constants.PrimaryNetworkID)
 	if !ok {
@@ -615,6 +618,27 @@ func (vm *VM) GetValidatorSet(ctx context.Context, height uint64, subnetID ids.I
 	vm.metrics.AddValidatorSetsDuration(endTime.Sub(startTime))
 	vm.metrics.AddValidatorSetsHeightDiff(lastAcceptedHeight - height)
 	return vdrSet, nil
+}
+
+// GetCurrentHeight returns the height of the last accepted block
+func (vm *VM) GetSubnetID(_ context.Context, chainID ids.ID) (ids.ID, error) {
+	if chainID == constants.PlatformChainID {
+		return constants.PrimaryNetworkID, nil
+	}
+
+	chainTx, _, err := vm.state.GetTx(chainID)
+	if err != nil {
+		return ids.Empty, fmt.Errorf(
+			"problem retrieving blockchain %q: %w",
+			chainID,
+			err,
+		)
+	}
+	chain, ok := chainTx.Unsigned.(*txs.CreateChainTx)
+	if !ok {
+		return ids.Empty, fmt.Errorf("%q is not a blockchain", chainID)
+	}
+	return chain.SubnetID, nil
 }
 
 // GetMinimumHeight returns the height of the most recent block beyond the
