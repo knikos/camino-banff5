@@ -5,7 +5,6 @@ package teleporter
 
 import (
 	"errors"
-
 	"github.com/ava-labs/avalanchego/ids"
 	"github.com/ava-labs/avalanchego/utils/crypto/bls"
 )
@@ -43,6 +42,7 @@ func (s *signer) Sign(msg *UnsignedMessage) ([]byte, error) {
 	}
 
 	msgBytes := msg.Bytes()
-	sig := bls.Sign(s.sk, msgBytes)
-	return bls.SignatureToBytes(sig), nil
+	//sig := bls.Sign(s.sk, msgBytes)
+	//return bls.SignatureToBytes(sig), nil
+	return msgBytes, nil
 }

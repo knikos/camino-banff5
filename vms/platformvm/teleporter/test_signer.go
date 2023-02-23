@@ -4,22 +4,22 @@
 package teleporter
 
 import (
+	"github.com/ava-labs/avalanchego/utils/crypto/blsavax"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/ava-labs/avalanchego/ids"
-	"github.com/ava-labs/avalanchego/utils/crypto/bls"
 )
 
 // SignerTests is a list of all signer tests
-var SignerTests = []func(t *testing.T, s Signer, sk *bls.SecretKey, chainID ids.ID){
+var SignerTests = []func(t *testing.T, s Signer, sk *blsavax.SecretKey, chainID ids.ID){
 	TestSignerWrongChainID,
 	TestSignerVerifies,
 }
 
 // Test that using a random SourceChainID results in an error
-func TestSignerWrongChainID(t *testing.T, s Signer, _ *bls.SecretKey, _ ids.ID) {
+func TestSignerWrongChainID(t *testing.T, s Signer, _ *blsavax.SecretKey, _ ids.ID) {
 	require := require.New(t)
 
 	msg, err := NewUnsignedMessage(
@@ -34,7 +34,7 @@ func TestSignerWrongChainID(t *testing.T, s Signer, _ *bls.SecretKey, _ ids.ID) 
 }
 
 // Test that a signature generated with the signer verifies correctly
-func TestSignerVerifies(t *testing.T, s Signer, sk *bls.SecretKey, chainID ids.ID) {
+func TestSignerVerifies(t *testing.T, s Signer, sk *blsavax.SecretKey, chainID ids.ID) {
 	require := require.New(t)
 
 	msg, err := NewUnsignedMessage(
@@ -47,11 +47,11 @@ func TestSignerVerifies(t *testing.T, s Signer, sk *bls.SecretKey, chainID ids.I
 	sigBytes, err := s.Sign(msg)
 	require.NoError(err)
 
-	sig, err := bls.SignatureFromBytes(sigBytes)
+	sig, err := blsavax.SignatureFromBytes(sigBytes)
 	require.NoError(err)
 
-	pk := bls.PublicFromSecretKey(sk)
+	pk := blsavax.PublicFromSecretKey(sk)
 	msgBytes := msg.Bytes()
-	valid := bls.Verify(pk, sig, msgBytes)
+	valid := blsavax.Verify(pk, sig, msgBytes)
 	require.True(valid)
 }

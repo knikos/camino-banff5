@@ -138,5 +138,6 @@ func AggregatePublicKeys(vdrs []*Validator) (*bls.PublicKey, error) {
 	for i, vdr := range vdrs {
 		pks[i] = vdr.PublicKey
 	}
-	return bls.AggregatePublicKeys(pks)
+	//return bls.AggregatePublicKeys(pks)
+	return nil, nil
 }

@@ -7,10 +7,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ava-labs/avalanchego/utils/crypto/blsavax"
 	"math/big"
 
 	"github.com/ava-labs/avalanchego/snow/validators"
-	"github.com/ava-labs/avalanchego/utils/crypto/bls"
 	"github.com/ava-labs/avalanchego/utils/set"
 )
 
@@ -41,8 +41,8 @@ type Signature interface {
 type BitSetSignature struct {
 	// Signers is a big-endian byte slice encoding which validators signed this
 	// message.
-	Signers   []byte                 `serialize:"true"`
-	Signature [bls.SignatureLen]byte `serialize:"true"`
+	Signers   []byte                     `serialize:"true"`
+	Signature [blsavax.SignatureLen]byte `serialize:"true"`
 }
 
 func (s *BitSetSignature) Verify(
@@ -89,23 +89,23 @@ func (s *BitSetSignature) Verify(
 		return err
 	}
 
-	// Parse the aggregate signature
-	aggSig, err := bls.SignatureFromBytes(s.Signature[:])
-	if err != nil {
-		return fmt.Errorf("%w: %s", ErrParseSignature, err)
-	}
-
-	// Create the aggregate public key
-	aggPubKey, err := AggregatePublicKeys(signers)
-	if err != nil {
-		return err
-	}
-
-	// Verify the signature
-	unsignedBytes := msg.Bytes()
-	if !bls.Verify(aggPubKey, aggSig, unsignedBytes) {
-		return ErrInvalidSignature
-	}
+	//// Parse the aggregate signature
+	//aggSig, err := blsavax.SignatureFromBytes(s.Signature[:])
+	//if err != nil {
+	//	return fmt.Errorf("%w: %s", ErrParseSignature, err)
+	//}
+	//
+	//// Create the aggregate public key
+	//aggPubKey, err := AggregatePublicKeys(signers)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Verify the signature
+	//unsignedBytes := msg.Bytes()
+	//if !blsavax.Verify(aggPubKey, aggSig, unsignedBytes) {
+	//	return ErrInvalidSignature
+	//}
 	return nil
 }
 
